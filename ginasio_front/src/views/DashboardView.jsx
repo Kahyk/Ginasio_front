@@ -41,7 +41,7 @@ const DashboardView = () => {
               </div>
             ) : (
               <div>
-                {/* O código que vai varrer o Banco de Dados virá para cá depois */}
+                {/* O códigox que vai varrer o Banco de Dados virá para cá depois */}
               </div>
             )}
           </div>
