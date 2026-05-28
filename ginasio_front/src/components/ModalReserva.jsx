@@ -91,7 +91,7 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
             <div className="mb-4">
               <BiCheckCircle size={80} className="text-success" />
             </div>
-            <h3 className="fw-bold text-dark mb-3">Reserva Confirmada!</h3>
+            <h3 className="fw-bold text-body mb-3">Reserva Confirmada!</h3>
             <p className="text-muted fs-5 mb-0">
               O espaço <strong>{complexoAtual} - {slotSelecionado?.local}</strong> foi reservado com sucesso para <strong>{nome}</strong> às <strong>{slotSelecionado?.horario}</strong>.
             </p>
@@ -110,14 +110,14 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
           </Modal.Header>
           
           <Modal.Body className="p-4">
-            <div className="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-4 border border-primary border-opacity-25">
+            <div className="d-flex justify-content-between align-items-center bg-body-secondary p-3 rounded mb-4 border border-primary border-opacity-25">
               <div>
                 <span className="text-muted small d-block">Espaço selecionado</span>
                 <span className="fw-bold text-primary">{complexoAtual} - {slotSelecionado?.local}</span>
               </div>
               <div className="text-end">
                 <span className="text-muted small d-block">Data e Hora</span>
-                <span className="fw-bold text-dark">
+                <span className="fw-bold text-body">
                   <BiCalendarAlt className="me-1 mb-1"/> 
                   {dataSelecionada?.split('-').reverse().join('/')} às {slotSelecionado?.horario}
                 </span>
@@ -130,7 +130,7 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
                 <Col md={7}>
                   <Form.Label className="fw-semibold small text-muted">Nome Completo *</Form.Label>
                   <div className="input-group">
-                    <span className={`input-group-text bg-white ${erros.nome ? 'border-warning' : ''}`}><BiUser /></span>
+                    <span className={`input-group-text bg-body ${erros.nome ? 'border-warning' : ''}`}><BiUser /></span>
                     <Form.Control 
                       type="text" 
                       placeholder="Nome do responsável" 
@@ -149,7 +149,7 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
                 <Col md={5}>
                   <Form.Label className="fw-semibold small text-muted">WhatsApp *</Form.Label>
                   <div className="input-group">
-                    <span className={`input-group-text bg-white ${erros.telefone ? 'border-warning' : ''}`}><BiPhone /></span>
+                    <span className={`input-group-text bg-body ${erros.telefone ? 'border-warning' : ''}`}><BiPhone /></span>
                     <Form.Control 
                       type="text" 
                       placeholder="(85) 90000-0000" 
@@ -202,7 +202,7 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
             </Form>
           </Modal.Body>
 
-          <Modal.Footer className="bg-light border-top-0">
+          <Modal.Footer className="bg-body-secondary border-top-0">
             <Button variant="outline-secondary" onClick={finalizarEFechar}>Cancelar</Button>
             <Button variant="primary" onClick={handleSalvar} className="px-4 shadow-sm">
               <BiCheckCircle className="me-1"/> Confirmar Reserva

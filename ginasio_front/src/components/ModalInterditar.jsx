@@ -59,7 +59,7 @@ const ModalInterditar = ({ show, handleClose, dataSelecionada, complexoAtual, lo
           <Modal.Header closeButton className="border-0 p-0" onHide={handleClose}></Modal.Header>
           <Modal.Body className="py-4">
             <BiLock size={80} className="text-danger mb-3" />
-            <h4 className="fw-bold text-dark mb-3">Área Interditada!</h4>
+            <h4 className="fw-bold text-body mb-3">Área Interditada!</h4>
             <p className="text-muted mb-0">
               O bloqueio foi aplicado com sucesso em <strong>{espacosSelecionados.length}</strong> espaço(s) do <strong>{complexoAtual}</strong>.
             </p>
@@ -80,11 +80,11 @@ const ModalInterditar = ({ show, handleClose, dataSelecionada, complexoAtual, lo
           
           <Modal.Body className="p-4">
             <div className="mb-4">
-              <h6 className="fw-bold text-dark mb-1">Complexo Selecionado</h6>
+              <h6 className="fw-bold text-body mb-1">Complexo Selecionado</h6>
               <p className="text-muted small mb-3">{complexoAtual} - {dataSelecionada?.split('-').reverse().join('/')}</p>
               
               {/* Lista de Checkboxes */}
-              <div className="bg-light p-3 rounded border">
+              <div className="bg-body-secondary p-3 rounded border">
                 <Form.Check 
                   type="checkbox"
                   id="check-todos"
@@ -130,7 +130,7 @@ const ModalInterditar = ({ show, handleClose, dataSelecionada, complexoAtual, lo
             )}
           </Modal.Body>
 
-          <Modal.Footer className="bg-light border-top-0">
+          <Modal.Footer className="bg-body-secondary border-top-0">
             <Button variant="outline-secondary" onClick={handleClose}>Cancelar</Button>
             <Button variant="danger" onClick={handleSalvar} className="px-4 shadow-sm">
               <BiLock className="me-1"/> Confirmar Bloqueio

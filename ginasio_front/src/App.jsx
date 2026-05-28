@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
 import Sidebar from './components/Sidebar';
 import DashboardView from './views/DashboardView';
 import CalendarioView from './views/CalendarioView';
@@ -26,18 +25,18 @@ function App() {
     }
   };
 
-  return (
-    <Container fluid className="p-0 h-100" style={{ minHeight: '100vh', overflow: 'hidden' }}>
-      <Row className="g-0 h-100">
-        <Col xs={2} style={{ height: '100vh', position: 'fixed', zIndex: 10 }}>
-          <Sidebar currentView={currentView} setCurrentView={setCurrentView} />
-        </Col>
-        
-        <Col xs={{ span: 10, offset: 2 }} className="p-5" style={{ backgroundColor: 'var(--unifor-bg)', minHeight: '100vh' }}>
-          {renderView()}
-        </Col>
-      </Row>
-    </Container>
+return (
+    // mudança das cores Colocamos o bg-body-tertiary e text-body no container mestre
+    <div className="d-flex vh-100 vw-100 bg-body-tertiary text-body" style={{ overflow: "hidden" }}>
+      
+      <Sidebar currentView={currentView} setCurrentView={setCurrentView} />
+      
+      {/* garantia que o fundo se adapte */}
+      <div className="flex-grow-1 p-4 overflow-auto bg-body-tertiary">
+        {renderView()}
+      </div>
+      
+    </div>
   );
 }
 

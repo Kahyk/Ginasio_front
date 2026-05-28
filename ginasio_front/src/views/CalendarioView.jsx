@@ -28,16 +28,16 @@ const CalendarioView = () => {
 
   return (
     <div className="h-100">
-      <div className="d-flex justify-content-between align-items-center mb-4 bg-white p-4 rounded shadow-sm border-top border-primary border-4">
+      <div className="d-flex justify-content-between align-items-center mb-4 bg-body p-4 rounded shadow-sm border-top border-primary border-4">
         <div>
-          <h4 className="fw-bold mb-1 text-dark">Calendário de Reservas</h4>
+          <h4 className="fw-bold mb-1 text-body">Calendário de Reservas</h4>
           <p className="text-muted small mb-0">Grade horária diária e visualização de blocos</p>
         </div>
         
         <div className="d-flex gap-3 align-items-center">
           <Form.Select 
             size="sm" 
-            className="border-0 bg-light shadow-sm fw-semibold text-primary" 
+            className="border-0 bg-body-secondary shadow-sm fw-semibold text-primary" 
             style={{ width: '220px', cursor: 'pointer' }}
             value={complexoAtual} 
             onChange={(e) => setComplexoAtual(e.target.value)}
@@ -51,7 +51,7 @@ const CalendarioView = () => {
             type="date" 
             value={dataSelecionada} 
             onChange={(e) => setDataSelecionada(e.target.value)} 
-            className="form-control-sm border-0 bg-light shadow-sm text-muted" 
+            className="form-control-sm border-0 bg-body-secondary shadow-sm text-muted" 
             style={{ width: '140px' }} 
           />
           
