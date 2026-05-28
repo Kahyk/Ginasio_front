@@ -3,10 +3,10 @@ import { Row, Col, Button, Badge } from 'react-bootstrap';
 import { BiCalendarEdit, BiInfoCircle, BiCalendarAlt, BiTime } from 'react-icons/bi';
 
 const DashboardView = ({ setCurrentView }) => {
-  // Gaveta vazia aguardando o banco de dados
+  // parte vazia aguardando o banco de dados
   const [reservasProximas] = useState([]);
 
-  // Lista fixa de Feriados de 2026 (Nacionais e Municipais)
+  // lista de alguns feriados de 2026 pra exemplo
   const todosFeriados = [
     { data: '2026-06-04', motivo: 'Corpus Christi' },
     { data: '2026-08-15', motivo: 'Nossa Senhora da Assunção' },
@@ -18,26 +18,25 @@ const DashboardView = ({ setCurrentView }) => {
     { data: '2026-12-25', motivo: 'Natal' }
   ];
 
-  // Filtro inteligente: pega a data exata de hoje e mostra apenas feriados futuros
+  // filtro pega a data exata de hoje e mostra apenas feriados futuros
   const hoje = new Date().toISOString().split('T')[0];
   const feriadosProximos = todosFeriados
     .filter(feriado => feriado.data >= hoje)
-    .slice(0, 3); // Mostra no máximo os 3 próximos para não poluir a tela
+    .slice(0, 3); 
 
-  // Função para deixar a data no formato brasileiro
   const formatarData = (dataIso) => {
     return dataIso.split('-').reverse().join('/');
   };
 
   return (
     <div className="h-100">
-      {/* Cabeçalho */}
+      {/* cabeçalho */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h3 className="fw-bold mb-1 text-dark">Tela Inicial</h3>
           <p className="text-muted small mb-0">Visão geral do complexo esportivo UNIFOR</p>
         </div>
-        {/* Botão agora muda a tela para o Calendário! */}
+        {/* botão para mudar para o calendário */}
         <Button 
           onClick={() => setCurrentView('Calendário')}
           className="shadow-sm d-flex align-items-center gap-2 fw-semibold" 
@@ -48,7 +47,7 @@ const DashboardView = ({ setCurrentView }) => {
       </div>
 
       <Row>
-        {/* Card 1: Inícios Próximos */}
+        {/* card 1: inicios proximos */}
         <Col xs={12} className="mb-4">
           <div className="card-unifor p-4">
             <h6 className="fw-bold mb-4 text-dark">Inícios Próximos (Reservas Confirmadas)</h6>
@@ -67,7 +66,7 @@ const DashboardView = ({ setCurrentView }) => {
           </div>
         </Col>
 
-        {/* Card 2: Feriados em Tempo Real */}
+        {/* Card 2: feriados */}
         <Col xs={12}>
           <div className="card-unifor p-4 border-start border-warning border-4">
             <h6 className="fw-bold text-dark mb-4 d-flex align-items-center gap-2">

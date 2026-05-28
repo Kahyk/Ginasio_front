@@ -4,15 +4,17 @@ import Sidebar from './components/Sidebar';
 import DashboardView from './views/DashboardView';
 import CalendarioView from './views/CalendarioView';
 
+
 function App() {
   const [currentView, setCurrentView] = useState('Dashboard');
 
   const renderView = () => {
     switch (currentView) {
+      case 'Tela Inicial':
       case 'Dashboard':
         return <DashboardView setCurrentView={setCurrentView}/>;
       case 'Calendário':
-       return <CalendarioView />;
+        return <CalendarioView />;
       case 'Reservas':
         return <h4>Tela de Gestão de Reservas (Em construção)</h4>;
       case 'Espaços':
