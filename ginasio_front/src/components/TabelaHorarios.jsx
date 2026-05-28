@@ -5,24 +5,24 @@ const TabelaHorarios = ({ locais, onSlotClick }) => {
 
   return (
     <Table hover responsive className="text-center align-middle m-0" style={{ borderCollapse: 'collapse' }}>
-      <thead className="bg-light border-bottom">
+      <thead className="bg-body-secondary border-bottom">
         <tr>
           <th className="py-3 text-muted fw-semibold border-end" style={{ width: '120px' }}>Horário</th>
           {locais.map(local => (
-            <th key={local} className="py-3 text-dark fw-semibold">{local}</th>
+            <th key={local} className="py-3 text-body fw-semibold">{local}</th>
           ))}
         </tr>
       </thead>
       <tbody>
         {horarios.map(horario => (
           <tr key={horario} style={{ height: '70px' }}>
-            <td className="fw-bold text-muted border-end bg-light">{horario}</td>
+            <td className="fw-bold text-muted border-end bg-body-secondary">{horario}</td>
             
             {locais.map(local => (
-              <td key={local} className="p-2" style={{ backgroundColor: '#fafafa' }}>
+              <td key={local} className="p-2 bg-body-tertiary">
                 <div 
                   onClick={() => onSlotClick({ horario, local })}
-                  className="d-flex flex-column justify-content-center align-items-center h-100 rounded border border-light bg-white shadow-sm transition-all" 
+                  className="d-flex flex-column justify-content-center align-items-center h-100 rounded border border-secondary-subtle bg-body shadow-sm transition-all" 
                   style={{ cursor: 'pointer', minHeight: '50px' }}
                 >
                   <span className="text-success small fw-semibold">+ Livre</span>

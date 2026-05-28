@@ -33,7 +33,7 @@ const DashboardView = ({ setCurrentView }) => {
       {/* cabeçalho */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h3 className="fw-bold mb-1 text-dark">Tela Inicial</h3>
+          <h3 className="fw-bold mb-1 text-body">Tela Inicial</h3>
           <p className="text-muted small mb-0">Visão geral do complexo esportivo UNIFOR</p>
         </div>
         {/* botão para mudar para o calendário */}
@@ -50,10 +50,10 @@ const DashboardView = ({ setCurrentView }) => {
         {/* card 1: inicios proximos */}
         <Col xs={12} className="mb-4">
           <div className="card-unifor p-4">
-            <h6 className="fw-bold mb-4 text-dark">Inícios Próximos (Reservas Confirmadas)</h6>
+            <h6 className="fw-bold mb-4 text-body">Inícios Próximos (Reservas Confirmadas)</h6>
             
             {reservasProximas.length === 0 ? (
-              <div className="bg-light rounded p-5 text-center border" style={{ borderStyle: 'dashed !important' }}>
+              <div className="bg-body-secondary rounded p-5 text-center border" style={{ borderStyle: 'dashed !important' }}>
                 <BiInfoCircle size={32} className="mb-2 text-muted opacity-50" />
                 <h6 className="text-muted fw-semibold mb-1">Nenhuma reserva próxima no momento</h6>
                 <p className="text-muted small mb-0 opacity-75">
@@ -69,12 +69,12 @@ const DashboardView = ({ setCurrentView }) => {
         {/* Card 2: feriados */}
         <Col xs={12}>
           <div className="card-unifor p-4 border-start border-warning border-4">
-            <h6 className="fw-bold text-dark mb-4 d-flex align-items-center gap-2">
+            <h6 className="fw-bold text-body mb-4 d-flex align-items-center gap-2">
               <BiCalendarAlt className="text-warning" /> Feriados e Recessos Próximos
             </h6>
             
             {feriadosProximos.length === 0 ? (
-              <div className="bg-light rounded p-4 text-center border" style={{ borderStyle: 'dashed !important' }}>
+              <div className="bg-body-secondary rounded p-4 text-center border" style={{ borderStyle: 'dashed !important' }}>
                 <p className="text-muted small mb-0 opacity-75">
                   Nenhum feriado programado para os próximos dias.
                 </p>
@@ -82,10 +82,10 @@ const DashboardView = ({ setCurrentView }) => {
             ) : (
               <div className="d-flex flex-column gap-2">
                 {feriadosProximos.map((feriado, index) => (
-                  <div key={index} className="d-flex align-items-center gap-3 p-3 bg-light rounded border border-warning border-opacity-25">
-                    <Badge bg="warning" className="p-2 text-dark"><BiTime size={16} /></Badge>
+                  <div key={index} className="d-flex align-items-center gap-3 p-3 bg-body-secondary rounded border border-warning border-opacity-25">
+                    <Badge bg="warning" className="p-2 text-body"><BiTime size={16} /></Badge>
                     <div>
-                      <div className="fw-bold text-dark">{feriado.motivo}</div>
+                      <div className="fw-bold text-body">{feriado.motivo}</div>
                       <div className="text-muted small">
                         Bloqueio do complexo programado para <strong>{formatarData(feriado.data)}</strong>
                       </div>
