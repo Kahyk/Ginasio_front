@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import Sidebar from './components/Sidebar';
 import DashboardView from './views/DashboardView';
+import CalendarioView from './views/CalendarioView';
 
 function App() {
   const [currentView, setCurrentView] = useState('Dashboard');
@@ -9,9 +10,9 @@ function App() {
   const renderView = () => {
     switch (currentView) {
       case 'Dashboard':
-        return <DashboardView />;
+        return <DashboardView setCurrentView={setCurrentView}/>;
       case 'Calendário':
-        return <h4>Tela de Calendário (Em construção)</h4>;
+       return <CalendarioView />;
       case 'Reservas':
         return <h4>Tela de Gestão de Reservas (Em construção)</h4>;
       case 'Espaços':

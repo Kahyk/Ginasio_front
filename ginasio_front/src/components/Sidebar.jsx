@@ -3,7 +3,7 @@ import { BiHomeAlt, BiCalendar, BiNotepad, BiMapAlt, BiGroup, BiErrorCircle } fr
 
 const Sidebar = ({ currentView, setCurrentView }) => {
   const menuItems = [
-    { id: "Dashboard", icone: <BiHomeAlt size={20} /> },
+    { id: "Tela Inicial", icone: <BiHomeAlt size={20} /> },
     { id: "Calendário", icone: <BiCalendar size={20} /> },
     { id: "Reservas", icone: <BiNotepad size={20} /> },
     { id: "Espaços", icone: <BiMapAlt size={20} /> },
@@ -12,7 +12,7 @@ const Sidebar = ({ currentView, setCurrentView }) => {
 
   return (
     <div className="d-flex flex-column h-100 py-4 px-3 bg-white border-end">
-      {/* Logo UNIFOR */}
+      {/* aqui a logo da unifor */}
       <div className="mb-5 px-3">
         <h3
           className="text-primary fw-bold mb-0"
@@ -25,7 +25,7 @@ const Sidebar = ({ currentView, setCurrentView }) => {
         </small>
       </div>
 
-      {/* Lista de Navegação */}
+      {/* a lista de navegação */}
       <Nav className="flex-column gap-2 mb-auto">
         {menuItems.map((item) => (
           <div
@@ -39,7 +39,7 @@ const Sidebar = ({ currentView, setCurrentView }) => {
         ))}
       </Nav>
 
-      {/* Alerta de Projeto no Rodapé */}
+      {/* o rodapé */}
       <div className="mt-auto">
         <div
           className="p-3 rounded border border-warning bg-opacity-10 bg-warning"
