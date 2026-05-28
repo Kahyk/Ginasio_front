@@ -1,22 +1,45 @@
 import { useState } from 'react';
-import { Row, Col, Button } from 'react-bootstrap';
-import { BiCalendarEdit, BiInfoCircle, BiCalendarAlt } from 'react-icons/bi';
+import { Row, Col, Button, Badge } from 'react-bootstrap';
+import { BiCalendarEdit, BiInfoCircle, BiCalendarAlt, BiTime } from 'react-icons/bi';
 
-const DashboardView = () => {
-  //  os dados vao ficar aqui quando o back for integrado
-  // por hora estao vazios
-  const [reservasProximas, setReservasProximas] = useState([]);
-  const [feriados, setFeriados] = useState([]);
+const DashboardView = ({ setCurrentView }) => {
+  // Gaveta vazia aguardando o banco de dados
+  const [reservasProximas] = useState([]);
+
+  // Lista fixa de Feriados de 2026 (Nacionais e Municipais)
+  const todosFeriados = [
+    { data: '2026-06-04', motivo: 'Corpus Christi' },
+    { data: '2026-08-15', motivo: 'Nossa Senhora da Assunção' },
+    { data: '2026-09-07', motivo: 'Independência do Brasil' },
+    { data: '2026-10-12', motivo: 'Nossa Sra. Aparecida' },
+    { data: '2026-11-02', motivo: 'Finados' },
+    { data: '2026-11-15', motivo: 'Proclamação da República' },
+    { data: '2026-11-20', motivo: 'Dia da Consciência Negra' },
+    { data: '2026-12-25', motivo: 'Natal' }
+  ];
+
+  // Filtro inteligente: pega a data exata de hoje e mostra apenas feriados futuros
+  const hoje = new Date().toISOString().split('T')[0];
+  const feriadosProximos = todosFeriados
+    .filter(feriado => feriado.data >= hoje)
+    .slice(0, 3); // Mostra no máximo os 3 próximos para não poluir a tela
+
+  // Função para deixar a data no formato brasileiro
+  const formatarData = (dataIso) => {
+    return dataIso.split('-').reverse().join('/');
+  };
 
   return (
     <div className="h-100">
-      {/* cabecalho  */}
+      {/* Cabeçalho */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h3 className="fw-bold mb-1 text-dark">Dashboard</h3>
+          <h3 className="fw-bold mb-1 text-dark">Tela Inicial</h3>
           <p className="text-muted small mb-0">Visão geral do complexo esportivo UNIFOR</p>
         </div>
+        {/* Botão agora muda a tela para o Calendário! */}
         <Button 
+          onClick={() => setCurrentView('Calendário')}
           className="shadow-sm d-flex align-items-center gap-2 fw-semibold" 
           style={{ backgroundColor: 'var(--unifor-blue)', border: 'none' }}
         >
@@ -25,12 +48,11 @@ const DashboardView = () => {
       </div>
 
       <Row>
-        {/* Card 1: Inicios Proximos */}
+        {/* Card 1: Inícios Próximos */}
         <Col xs={12} className="mb-4">
           <div className="card-unifor p-4">
             <h6 className="fw-bold mb-4 text-dark">Inícios Próximos (Reservas Confirmadas)</h6>
             
-            {/* Aguardando Banco de Dados */}
             {reservasProximas.length === 0 ? (
               <div className="bg-light rounded p-5 text-center border" style={{ borderStyle: 'dashed !important' }}>
                 <BiInfoCircle size={32} className="mb-2 text-muted opacity-50" />
@@ -40,30 +62,37 @@ const DashboardView = () => {
                 </p>
               </div>
             ) : (
-              <div>
-                {/* O códigox que vai varrer o Banco de Dados virá para cá depois */}
-              </div>
+              <div>{/* Renderização futura do Back-end */}</div>
             )}
           </div>
         </Col>
 
-        {/* Card 2: Feriados e Bloqueios */}
+        {/* Card 2: Feriados em Tempo Real */}
         <Col xs={12}>
           <div className="card-unifor p-4 border-start border-warning border-4">
             <h6 className="fw-bold text-dark mb-4 d-flex align-items-center gap-2">
               <BiCalendarAlt className="text-warning" /> Feriados e Recessos Próximos
             </h6>
             
-            {/* Aguardando Banco de Dados */}
-            {feriados.length === 0 ? (
+            {feriadosProximos.length === 0 ? (
               <div className="bg-light rounded p-4 text-center border" style={{ borderStyle: 'dashed !important' }}>
                 <p className="text-muted small mb-0 opacity-75">
-                  Nenhum bloqueio programado. O sistema está aguardando sincronização com o banco de dados.
+                  Nenhum feriado programado para os próximos dias.
                 </p>
               </div>
             ) : (
-              <div>
-                {/* O código que vai listar os bloqueios do banco virá para cá depois */}
+              <div className="d-flex flex-column gap-2">
+                {feriadosProximos.map((feriado, index) => (
+                  <div key={index} className="d-flex align-items-center gap-3 p-3 bg-light rounded border border-warning border-opacity-25">
+                    <Badge bg="warning" className="p-2 text-dark"><BiTime size={16} /></Badge>
+                    <div>
+                      <div className="fw-bold text-dark">{feriado.motivo}</div>
+                      <div className="text-muted small">
+                        Bloqueio do complexo programado para <strong>{formatarData(feriado.data)}</strong>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
