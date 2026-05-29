@@ -3,7 +3,7 @@ import { Nav, Dropdown } from "react-bootstrap";
 import { BiHomeAlt, BiCalendar, BiNotepad, BiMapAlt, BiGroup, BiErrorCircle, BiCog, BiLock, BiMoon, BiSun, BiLogOut } from "react-icons/bi";
 import ModalSenha from "./ModalSenha";
 
-const Sidebar = ({ currentView, setCurrentView }) => {
+const Sidebar = ({ currentView, setCurrentView,setAutenticado}) => {
   const [temaEscuro, setTemaEscuro] = useState(false);
   const [showModalSenha, setShowModalSenha] = useState(false);
 
@@ -116,7 +116,7 @@ const Sidebar = ({ currentView, setCurrentView }) => {
               <Dropdown.Divider />
               
               <Dropdown.Item 
-                onClick={() => alert("Simulando saída do sistema... Voltando para o Login!")} 
+                onClick={() => setAutenticado(false)} 
                 className="text-danger fw-bold d-flex align-items-center gap-2 py-2"
               >
                 <BiLogOut size={18} /> Sair do Sistema
