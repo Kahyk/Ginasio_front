@@ -1,5 +1,6 @@
 :root {
   --unifor-blue: #0d6efd;
+  --unifor-purple: #8a2be2; /* Nova cor para a assessoria em usuario*/
 }
 
 body {
@@ -32,4 +33,16 @@ body {
   background-color: var(--bs-primary-bg-subtle);
   color: var(--unifor-blue);
   font-weight: 600;
+}
+
+.text-unifor-purple {
+  color: var(--unifor-purple) !important;
+}
+
+.border-unifor-purple {
+  border-color: var(--unifor-purple) !important;
+}
+
+.bg-unifor-purple-subtle {
+  background-color: rgba(138, 43, 226, 0.15) !important;
 }

@@ -54,19 +54,38 @@ const Sidebar = ({ currentView, setCurrentView }) => {
           ))}
         </Nav>
 
-        {/* o rodapé */}
-        <div className="mt-auto">
+       {/* o rodapé */}
+
+      <div className="mt-auto">
           <div
-            className={`p-3 rounded border mb-3 ${temaEscuro ? 'border-secondary bg-dark' : 'border-warning bg-warning bg-opacity-10'}`}
-            style={{ backgroundColor: temaEscuro ? 'transparent' : "#fffdf5" }}
+            className={`p-3 rounded mb-3 ${temaEscuro ? 'border border-secondary bg-dark' : ''}`}
+            style={{ 
+              backgroundColor: temaEscuro ? 'transparent' : '#fdf8ec', 
+              border: temaEscuro ? '' : 'none' 
+          }}
           >
-            <div className={`d-flex align-items-center gap-2 fw-bold mb-1 ${temaEscuro ? 'text-light' : 'text-warning'}`} style={{ fontSize: "13px" }}>
-              <BiErrorCircle size={16} /> Projeto de Extensão
-            </div>
-            <div className="text-muted" style={{ fontSize: "11px" }}>
-              Desenvolvimento Web - UNIFOR
-            </div>
-          </div>
+        
+      <div 
+          className={`d-flex align-items-center gap-2 fw-bold mb-1 ${temaEscuro ? 'text-light' : ''}`} 
+          style={{ 
+            fontSize: "13px", 
+            color: temaEscuro ? '' : '#c26a0b' 
+          }}
+      >
+          
+      <BiErrorCircle size={16} /> Projeto de Extensão
+        </div>
+        <div 
+          className={temaEscuro ? 'text-muted' : ''} 
+          style={{ 
+            fontSize: "11px", 
+            color: temaEscuro ? '' : '#c26a0b' 
+          }}
+        >
+
+        Desenvolvimento Web - UNIFOR
+        </div>
+      </div>
 
           {/* as configuracoes e loggout */}
           <Dropdown drop="up" className="w-100 border-top pt-3">
