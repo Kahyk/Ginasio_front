@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import Sidebar from './components/Sidebar';
 import DashboardView from './views/DashboardView';
+import UsuariosView from './views/UsuariosView';
 
 function App() {
   const [currentView, setCurrentView] = useState('Dashboard');
@@ -17,7 +18,7 @@ function App() {
       case 'Espaços':
         return <h4>Tela de Gestão de Espaços (Em construção)</h4>;
       case 'Usuários':
-        return <h4>Tela de Gestão de Usuários (Em construção)</h4>;
+        return <UsuariosView />;
       default:
         return <h4>Tela não encontrada</h4>;
     }
