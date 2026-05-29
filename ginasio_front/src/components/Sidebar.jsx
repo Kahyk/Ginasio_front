@@ -1,9 +1,21 @@
-import { Nav } from "react-bootstrap";
-import { BiHomeAlt, BiCalendar, BiNotepad, BiMapAlt, BiGroup, BiErrorCircle } from "react-icons/bi";
+import { useState } from "react";
+import { Nav, Dropdown } from "react-bootstrap";
+import { BiHomeAlt, BiCalendar, BiNotepad, BiMapAlt, BiGroup, BiErrorCircle, BiCog, BiLock, BiMoon, BiSun, BiLogOut } from "react-icons/bi";
+import ModalSenha from "./ModalSenha";
 
 const Sidebar = ({ currentView, setCurrentView }) => {
+  const [temaEscuro, setTemaEscuro] = useState(false);
+  const [showModalSenha, setShowModalSenha] = useState(false);
+
+  // função que inverte o tema e aplica direto no HTML da página
+  const alternarTema = () => {
+    const novoTema = !temaEscuro;
+    setTemaEscuro(novoTema);
+    document.documentElement.setAttribute('data-bs-theme', novoTema ? 'dark' : 'light');
+  };
+
   const menuItems = [
-    { id: "Dashboard", icone: <BiHomeAlt size={20} /> },
+    { id: "Tela Inicial", icone: <BiHomeAlt size={20} /> },
     { id: "Calendário", icone: <BiCalendar size={20} /> },
     { id: "Reservas", icone: <BiNotepad size={20} /> },
     { id: "Espaços", icone: <BiMapAlt size={20} /> },
@@ -11,52 +23,93 @@ const Sidebar = ({ currentView, setCurrentView }) => {
   ];
 
   return (
-    <div className="d-flex flex-column h-100 py-4 px-3 bg-white border-end">
-      {/* Logo UNIFOR */}
-      <div className="mb-5 px-3">
-        <h3
-          className="text-primary fw-bold mb-0"
-          style={{ letterSpacing: "1px" }}
-        >
-          UNIFOR
-        </h3>
-        <small className="text-muted" style={{ fontSize: "12px" }}>
-          Gestão Complexo Esportivo
-        </small>
-      </div>
+    <>
+      <div className="d-flex flex-column h-100 py-4 px-3 bg-body-tertiary border-end transition-all">
+        {/* logo da unifor */}
+        <div className="mb-5 px-3">
+          <h3 className="text-primary fw-bold mb-0" style={{ letterSpacing: "1px" }}>
+            UNIFOR
+          </h3>
+          <small className="text-muted" style={{ fontSize: "12px" }}>
+            Gestão Complexo Esportivo
+          </small>
+        </div>
 
-      {/* Lista de Navegação */}
-      <Nav className="flex-column gap-2 mb-auto">
-        {menuItems.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => setCurrentView(item.id)}
-            className={`d-flex align-items-center gap-3 px-3 py-2 sidebar-item ${currentView === item.id ? "active" : ""}`}
-          >
-            {item.icone}
-            <span>{item.id}</span>
-          </div>
-        ))}
-      </Nav>
+        {/* a lista de navegação */}
+        <Nav className="flex-column gap-2 mb-auto">
+          {menuItems.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => setCurrentView(item.id)}
+              style={{ cursor: "pointer" }}
+              className={`d-flex align-items-center gap-3 px-3 py-2 rounded transition-all ${
+                currentView === item.id 
+                  ? "bg-primary text-white fw-bold shadow-sm" 
+                  : "text-body hover-bg-body-secondary"
+              }`}
+            >
+              {item.icone}
+              <span>{item.id}</span>
+            </div>
+          ))}
+        </Nav>
 
-      {/* Alerta de Projeto no Rodapé */}
-      <div className="mt-auto">
-        <div
-          className="p-3 rounded border border-warning bg-opacity-10 bg-warning"
-          style={{ backgroundColor: "#fffdf5" }}
-        >
+        {/* o rodapé */}
+        <div className="mt-auto">
           <div
-            className="d-flex align-items-center gap-2 text-warning fw-bold mb-1"
-            style={{ fontSize: "13px" }}
+            className={`p-3 rounded border mb-3 ${temaEscuro ? 'border-secondary bg-dark' : 'border-warning bg-warning bg-opacity-10'}`}
+            style={{ backgroundColor: temaEscuro ? 'transparent' : "#fffdf5" }}
           >
-            <BiErrorCircle size={16} /> Projeto de Extensão
+            <div className={`d-flex align-items-center gap-2 fw-bold mb-1 ${temaEscuro ? 'text-light' : 'text-warning'}`} style={{ fontSize: "13px" }}>
+              <BiErrorCircle size={16} /> Projeto de Extensão
+            </div>
+            <div className="text-muted" style={{ fontSize: "11px" }}>
+              Desenvolvimento Web - UNIFOR
+            </div>
           </div>
-          <div className="text-muted" style={{ fontSize: "11px" }}>
-            Desenvolvimento Web - UNIFOR
-          </div>
+
+          {/* as configuracoes e loggout */}
+          <Dropdown drop="up" className="w-100 border-top pt-3">
+            <Dropdown.Toggle 
+              variant={temaEscuro ? "dark" : "light"} 
+              id="dropdown-config"
+              className="w-100 d-flex align-items-center justify-content-between border-0 shadow-sm text-body fw-bold py-2"
+            >
+              <div className="d-flex align-items-center gap-2">
+                <BiCog size={20} />
+                <span>Configurações</span>
+              </div>
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu className="w-100 shadow border mb-2 rounded-3">
+              <Dropdown.Item onClick={() => setShowModalSenha(true)} className="d-flex align-items-center gap-2 py-2">
+                <BiLock size={18} /> Alterar Senha
+              </Dropdown.Item>
+              
+              <Dropdown.Item onClick={alternarTema} className="d-flex align-items-center gap-2 py-2">
+                {temaEscuro ? (
+                  <><BiSun size={18}/> Tema Claro</>
+                ) : (
+                  <><BiMoon size={18} /> Tema Escuro</>
+                )}
+              </Dropdown.Item>
+              
+              <Dropdown.Divider />
+              
+              <Dropdown.Item 
+                onClick={() => alert("Simulando saída do sistema... Voltando para o Login!")} 
+                className="text-danger fw-bold d-flex align-items-center gap-2 py-2"
+              >
+                <BiLogOut size={18} /> Sair do Sistema
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         </div>
       </div>
-    </div>
+
+      {/* renderiza o modal invisivel */}
+      <ModalSenha show={showModalSenha} handleClose={() => setShowModalSenha(false)} />
+    </>
   );
 };
 
