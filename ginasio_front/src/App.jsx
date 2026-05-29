@@ -2,6 +2,8 @@ import { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import DashboardView from './views/DashboardView';
 import CalendarioView from './views/CalendarioView';
+import ReservasView from './views/ReservasView';
+import EspacosView from './views/EspacosView';
 
 
 function App() {
@@ -15,9 +17,9 @@ function App() {
       case 'Calendário':
         return <CalendarioView />;
       case 'Reservas':
-        return <h4>Tela de Gestão de Reservas (Em construção)</h4>;
+        return <ReservasView />;
       case 'Espaços':
-        return <h4>Tela de Gestão de Espaços (Em construção)</h4>;
+        return <EspacosView />;
       case 'Usuários':
         return <h4>Tela de Gestão de Usuários (Em construção)</h4>;
       default:
@@ -26,7 +28,7 @@ function App() {
   };
 
 return (
-    // mudança das cores Colocamos o bg-body-tertiary e text-body no container mestre
+    
     <div className="d-flex vh-100 vw-100 bg-body-tertiary text-body" style={{ overflow: "hidden" }}>
       
       <Sidebar currentView={currentView} setCurrentView={setCurrentView} />
