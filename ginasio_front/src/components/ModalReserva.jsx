@@ -1,30 +1,38 @@
 import { useState } from 'react';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
-import { BiUser, BiPhone, BiCheckCircle, BiCalendarAlt, BiErrorCircle } from 'react-icons/bi';
+import { BiUser, BiPhone, BiCheckCircle, BiCalendarAlt, BiErrorCircle, BiIdCard } from 'react-icons/bi';
+import api from '../services/api';
 
 const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotSelecionado }) => {
   const [nome, setNome] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [dataNascimento, setDataNascimento] = useState('');
   const [telefone, setTelefone] = useState('');
   const [vinculo, setVinculo] = useState('externo');
   const [matricula, setMatricula] = useState('');
   const [erros, setErros] = useState({});
-  
-  // estado pra controlar se mostra formulario ou a tela de sucesso
   const [sucesso, setSucesso] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleTelefoneChange = (e) => {
     let valor = e.target.value.replace(/\D/g, ''); 
     if (valor.length > 11) valor = valor.slice(0, 11);
-
     let formatado = valor;
-    if (valor.length > 7) {
-      formatado = `(${valor.slice(0, 2)}) ${valor.slice(2, 7)}-${valor.slice(7)}`;
-    } else if (valor.length > 2) {
-      formatado = `(${valor.slice(0, 2)}) ${valor.slice(2)}`;
-    }
-
+    if (valor.length > 7) formatado = `(${valor.slice(0, 2)}) ${valor.slice(2, 7)}-${valor.slice(7)}`;
+    else if (valor.length > 2) formatado = `(${valor.slice(0, 2)}) ${valor.slice(2)}`;
     setTelefone(formatado);
     if (erros.telefone) setErros({ ...erros, telefone: null });
+  };
+
+  const handleCpfChange = (e) => {
+    let valor = e.target.value.replace(/\D/g, '');
+    if (valor.length > 11) valor = valor.slice(0, 11);
+    let formatado = valor;
+    if (valor.length > 9) formatado = `${valor.slice(0, 3)}.${valor.slice(3, 6)}.${valor.slice(6, 9)}-${valor.slice(9)}`;
+    else if (valor.length > 6) formatado = `${valor.slice(0, 3)}.${valor.slice(3, 6)}.${valor.slice(6)}`;
+    else if (valor.length > 3) formatado = `${valor.slice(0, 3)}.${valor.slice(3)}`;
+    setCpf(formatado);
+    if (erros.cpf) setErros({ ...erros, cpf: null });
   };
 
   const handleMatriculaChange = (e) => {
@@ -35,29 +43,19 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
     }
   };
 
-  const handleNomeChange = (e) => {
-    setNome(e.target.value);
-    if (erros.nome) setErros({ ...erros, nome: null });
-  };
-
-  const handleSalvar = () => {
+  const handleSalvar = async () => {
     let novosErros = {}; 
-
     if (!nome) novosErros.nome = "Preencha o nome completo.";
+    if (!dataNascimento) novosErros.dataNascimento = "Data é obrigatória.";
+
+    const cpfNumeros = cpf.replace(/\D/g, '');
+    if (!cpfNumeros || cpfNumeros.length < 11) novosErros.cpf = "CPF inválido.";
 
     const telefoneNumeros = telefone.replace(/\D/g, '');
-    if (!telefoneNumeros) {
-      novosErros.telefone = "O WhatsApp é obrigatório.";
-    } else if (telefoneNumeros.length < 11) {
-      novosErros.telefone = "Faltam números (são 11 dígitos).";
-    }
+    if (!telefoneNumeros || telefoneNumeros.length < 11) novosErros.telefone = "WhatsApp inválido.";
 
-    if (vinculo !== 'externo') {
-      if (!matricula) {
-        novosErros.matricula = "A matrícula é obrigatória.";
-      } else if (matricula.length < 7) {
-        novosErros.matricula = "Faltam números (são 7 dígitos).";
-      }
+    if (vinculo !== 'externo' && (!matricula || matricula.length < 7)) {
+      novosErros.matricula = "Matrícula inválida (7 dígitos).";
     }
 
     if (Object.keys(novosErros).length > 0) {
@@ -65,25 +63,107 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
       return; 
     }
     
+    setLoading(true);
 
-    setSucesso(true);
+    try {
+      let clienteUserId = null;
+      const typeUserEnum = vinculo === 'aluno' ? 'ALUNO' : vinculo === 'colaborador' ? 'FUNCIONARIO' : 'ESTRANGEIRO';
+      const endpointCriar = vinculo === 'aluno' ? '/alunos' : vinculo === 'colaborador' ? '/funcionarios' : '/estrangeiros';
+      const emailGerado = `${cpfNumeros}@cliente.unifor.br`;
+
+      const dadosDoCliente = {
+        user: {
+          name: nome,
+          cpf: cpfNumeros,
+          phone: telefoneNumeros,
+          birthDate: new Date(`${dataNascimento}T12:00:00Z`).toISOString(),
+          email: emailGerado, 
+          password: cpfNumeros, 
+          typeUser: typeUserEnum
+        },
+        ...(vinculo === 'aluno' ? { aluno: { matricula } } : {}),
+        ...(vinculo === 'colaborador' ? { funcionario: { matricula } } : {})
+      };
+
+      try {
+        const respostaUsuario = await api.post(endpointCriar, dadosDoCliente);
+        clienteUserId = respostaUsuario.data.userId || respostaUsuario.data.id;
+      } catch (erroCriar) {
+        const erroData = erroCriar.response?.data;
+        const erroMensagem = JSON.stringify(erroData || '');
+        
+        if (
+          erroMensagem.includes('Unique') || 
+          erroMensagem.includes('Unique constraint') || 
+          erroMensagem.includes('EmailAlreadyExists') ||
+          erroData?.name === 'EmailAlreadyExists'
+        ) {
+          if (vinculo !== 'externo') {
+            const rotaBusca = vinculo === 'aluno' ? '/alunos/matricula' : '/funcionarios/matricula';
+            const respostaBusca = await api.get(`${rotaBusca}/${matricula}`);
+            clienteUserId = respostaBusca.data.userId || respostaBusca.data.id;
+          } else {
+            const respostaLogin = await api.post('/auth/login', {
+              email: emailGerado,
+              password: cpfNumeros
+            });
+            clienteUserId = respostaLogin.data.userId;
+          }
+        } else {
+          throw erroCriar; 
+        }
+      }
+
+      if (!clienteUserId) throw new Error("Não foi possível obter o ID do cliente");
+
+      // Dicionário com todas as quadras cadastradas!
+      const mapLocaisIds = {
+        'Quadra Poliesportiva 1': 'uuid-quadra-001',
+        'Quadra Poliesportiva 2': 'uuid-quadra-002',
+        'Sala Multifuncional': 'uuid-sala-001',
+        'Raia 1': 'uuid-raia-001',
+        'Raia 2': 'uuid-raia-002',
+        'Raia 3': 'uuid-raia-003',
+        'Área de Lazer': 'uuid-lazer-001',
+        'Quadra Saibro': 'uuid-saibro-001',
+        'Quadra Rápida 1': 'uuid-rapida-001',
+        'Quadra Rápida 2': 'uuid-rapida-002',
+      };
+
+      const placeIdCorreto = mapLocaisIds[slotSelecionado?.local];
+      const dataIsoString = new Date(`${dataSelecionada}T${slotSelecionado.horario}:00-03:00`).toISOString();
+
+      await api.post('/schedulings', {
+        userId: clienteUserId,
+        placeId: placeIdCorreto, 
+        date: dataIsoString,
+        status: 'CONFIRMED' 
+      });
+
+      setSucesso(true);
+    } catch (error) {
+      console.error("Erro na integração:", error);
+      alert("Houve um erro de servidor ao processar sua reserva. Verifique o console.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // função para limpar e resetar tudo quando o usuário finalizar ou fechar
   const finalizarEFechar = () => {
-    setNome(''); 
-    setTelefone(''); 
-    setVinculo('externo'); 
-    setMatricula(''); 
-    setErros({});
-    setSucesso(false); 
-    handleClose();
+    const precisaRecarregar = sucesso; 
+    setNome(''); setCpf(''); setDataNascimento(''); setTelefone(''); 
+    setVinculo('externo'); setMatricula(''); setErros({});
+    setSucesso(false); setLoading(false);
+    
+    handleClose(); 
+    
+    if (precisaRecarregar) {
+      window.location.reload(); 
+    }
   };
 
   return (
     <Modal show={show} onHide={finalizarEFechar} size="lg" centered backdrop="static">
-      
-      {/* se sucesso, mostra a tela de confrimação */}
       {sucesso ? (
         <div className="p-4 text-center">
           <Modal.Header closeButton className="border-0 p-0" onHide={finalizarEFechar}></Modal.Header>
@@ -103,7 +183,6 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
           </Modal.Footer>
         </div>
       ) : (
-        /* caso nao, mostra o formulario normal */
         <>
           <Modal.Header closeButton className="bg-primary text-white border-bottom-0">
             <Modal.Title className="fw-bold fs-5">Novo Agendamento</Modal.Title>
@@ -126,54 +205,62 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
 
             <Form>
               <h6 className="fw-bold text-muted mb-3">Dados do Responsável</h6>
-              <Row className="g-3 mb-3">
-                <Col md={7}>
+              
+              <Row className="mb-3">
+                <Col md={12}>
                   <Form.Label className="fw-semibold small text-muted">Nome Completo *</Form.Label>
                   <div className="input-group">
                     <span className={`input-group-text bg-body ${erros.nome ? 'border-warning' : ''}`}><BiUser /></span>
                     <Form.Control 
-                      type="text" 
-                      placeholder="Nome do responsável" 
-                      value={nome} 
-                      onChange={handleNomeChange}
+                      type="text" placeholder="Nome completo do responsável" value={nome} 
+                      onChange={(e) => { setNome(e.target.value); if(erros.nome) setErros({...erros, nome: null}); }}
                       className={erros.nome ? 'border-warning shadow-none' : ''}
                     />
                   </div>
-                  {erros.nome && (
-                    <div className="text-warning small fw-bold mt-1 d-flex align-items-center gap-1">
-                      <BiErrorCircle /> {erros.nome}
-                    </div>
-                  )}
+                  {erros.nome && <div className="text-warning small fw-bold mt-1 d-flex align-items-center gap-1"><BiErrorCircle /> {erros.nome}</div>}
+                </Col>
+              </Row>
+
+              <Row className="g-3 mb-3">
+                <Col md={4}>
+                  <Form.Label className="fw-semibold small text-muted">CPF *</Form.Label>
+                  <div className="input-group">
+                    <span className={`input-group-text bg-body ${erros.cpf ? 'border-warning' : ''}`}><BiIdCard /></span>
+                    <Form.Control 
+                      type="text" placeholder="000.000.000-00" value={cpf} onChange={handleCpfChange}
+                      className={erros.cpf ? 'border-warning shadow-none' : ''}
+                    />
+                  </div>
+                  {erros.cpf && <div className="text-warning small fw-bold mt-1 d-flex align-items-center gap-1"><BiErrorCircle /> {erros.cpf}</div>}
                 </Col>
 
-                <Col md={5}>
+                <Col md={4}>
+                  <Form.Label className="fw-semibold small text-muted">Nascimento *</Form.Label>
+                  <Form.Control 
+                    type="date" value={dataNascimento} max={new Date().toISOString().split('T')[0]} 
+                    onChange={(e) => { setDataNascimento(e.target.value); if(erros.dataNascimento) setErros({...erros, dataNascimento: null}); }}
+                    className={erros.dataNascimento ? 'border-warning shadow-none' : ''}
+                  />
+                  {erros.dataNascimento && <div className="text-warning small fw-bold mt-1 d-flex align-items-center gap-1"><BiErrorCircle /> {erros.dataNascimento}</div>}
+                </Col>
+
+                <Col md={4}>
                   <Form.Label className="fw-semibold small text-muted">WhatsApp *</Form.Label>
                   <div className="input-group">
                     <span className={`input-group-text bg-body ${erros.telefone ? 'border-warning' : ''}`}><BiPhone /></span>
                     <Form.Control 
-                      type="text" 
-                      placeholder="(85) 90000-0000" 
-                      maxLength={15} 
-                      value={telefone} 
-                      onChange={handleTelefoneChange} 
+                      type="text" placeholder="(85) 90000-0000" value={telefone} onChange={handleTelefoneChange} 
                       className={erros.telefone ? 'border-warning shadow-none' : ''}
                     />
                   </div>
-                  {erros.telefone && (
-                    <div className="text-warning small fw-bold mt-1 d-flex align-items-center gap-1">
-                      <BiErrorCircle /> {erros.telefone}
-                    </div>
-                  )}
+                  {erros.telefone && <div className="text-warning small fw-bold mt-1 d-flex align-items-center gap-1"><BiErrorCircle /> {erros.telefone}</div>}
                 </Col>
               </Row>
 
               <Row className="g-3 mb-2">
                 <Col md={4}>
                   <Form.Label className="fw-semibold small text-muted">Vínculo com a UNIFOR</Form.Label>
-                  <Form.Select value={vinculo} onChange={(e) => {
-                    setVinculo(e.target.value);
-                    setErros({ ...erros, matricula: null }); 
-                  }}>
+                  <Form.Select value={vinculo} onChange={(e) => { setVinculo(e.target.value); setErros({ ...erros, matricula: null }); }}>
                     <option value="externo">Público Externo</option>
                     <option value="aluno">Aluno / Ex-aluno</option>
                     <option value="colaborador">Colaborador</option>
@@ -184,11 +271,7 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
                   <Col md={8}>
                     <Form.Label className="fw-bold small text-primary">Nº Matrícula *</Form.Label>
                     <Form.Control 
-                      type="text" 
-                      placeholder="Ex: 2410899" 
-                      maxLength={7} 
-                      value={matricula} 
-                      onChange={handleMatriculaChange} 
+                      type="text" placeholder="Ex: 2410899" maxLength={7} value={matricula} onChange={handleMatriculaChange} 
                       className={erros.matricula ? 'border-warning shadow-none' : ''}
                     />
                     {erros.matricula && (
@@ -203,9 +286,9 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
           </Modal.Body>
 
           <Modal.Footer className="bg-body-secondary border-top-0">
-            <Button variant="outline-secondary" onClick={finalizarEFechar}>Cancelar</Button>
-            <Button variant="primary" onClick={handleSalvar} className="px-4 shadow-sm">
-              <BiCheckCircle className="me-1"/> Confirmar Reserva
+            <Button variant="outline-secondary" onClick={finalizarEFechar} disabled={loading}>Cancelar</Button>
+            <Button variant="primary" onClick={handleSalvar} className="px-4 shadow-sm" disabled={loading}>
+              {loading ? 'Processando...' : <><BiCheckCircle className="me-1"/> Confirmar Reserva</>}
             </Button>
           </Modal.Footer>
         </>

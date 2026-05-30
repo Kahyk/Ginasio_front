@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Container, Form, Button, InputGroup, Alert } from 'react-bootstrap';
 import { BiEnvelope, BiLockAlt, BiLogIn } from 'react-icons/bi';
+import api from '../services/api'; // Importamos a nossa configuração da API
 
 const Login = ({ setAutenticado }) => {
   const [email, setEmail] = useState('');
@@ -8,20 +9,36 @@ const Login = ({ setAutenticado }) => {
   const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErro('');
 
-    // Simulação rápida para a apresentação (substituiremos pela API depois)
-    setTimeout(() => {
-      if (email === 'admin@unifor.br' && senha === '123') {
-        setAutenticado(true); // Destranca o sistema!
+    try {
+      // Faz a requisição POST real para a rota /auth/login do back-end
+      const response = await api.post('/auth/login', {
+        email: email,
+        password: senha
+      });
+
+      // Se o back-end responder com sucesso, ele nos devolve o Token JWT
+      if (response.data && response.data.token) {
+        // Guardamos o token com segurança no navegador para usar nas próximas telas
+        localStorage.setItem('token', response.data.token);
+        
+        // Destranca o sistema!
+        setAutenticado(true);
       } else {
-        setErro('E-mail ou senha incorretos. Tente admin@unifor.br e 123');
-        setLoading(false);
+        setErro('Falha na autenticação. Tente novamente.');
       }
-    }, 1000);
+    } catch (error) {
+      console.error(error);
+      
+      const mensagemErro = error.response?.data?.error || 'Erro ao conectar com o servidor.';
+      setErro(mensagemErro);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,13 +63,13 @@ const Login = ({ setAutenticado }) => {
         {/* Formulário */}
         <Form onSubmit={handleLogin}>
           <Form.Group className="mb-3">
-            <Form.Label className="text-body fw-semibold small mb-1">E-mail ou Matrícula</Form.Label>
+            <Form.Label className="text-body fw-semibold small mb-1">E-mail</Form.Label>
             <InputGroup>
               <InputGroup.Text className="bg-transparent border-secondary-subtle">
                 <BiEnvelope className="text-muted" />
               </InputGroup.Text>
               <Form.Control 
-                type="text" 
+                type="email" 
                 placeholder="Ex: admin@unifor.br" 
                 className="bg-transparent border-start-0 border-secondary-subtle text-body shadow-none"
                 value={email}

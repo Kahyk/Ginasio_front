@@ -4,25 +4,45 @@ import DashboardView from './views/DashboardView';
 import CalendarioView from './views/CalendarioView';
 import UsuariosView from './views/UsuariosView';
 import Login from './views/Login';
+import ReservasView from './views/ReservasView';
+import EspacosView from './views/EspacosView';
 
 
 function App() {
-  const [currentView, setCurrentView] = useState('Dashboard');
+  // inicia a tela pegando o que tava salvo pro f5 nao resetar pro dashboard
+  const [currentView, setCurrentView] = useState(() => {
+    return localStorage.getItem('currentView') || 'Dashboard';
+  });
 
-  const [autenticado, setAutenticado] = useState(false);
+  // verifica se ja tem token salvo no navegador pra não deslogar quando der f5
+  const [autenticado, setAutenticado] = useState(() => {
+    return !!localStorage.getItem('token');
+  });
 
   const [showSplash, setShowSplash] = useState(false);
 
-  //Dispara a contagem assim que o usuário logar com sucesso
+  // salva a tela atual toda vez que ela mudar pro f5 nao resetar ela
+  useEffect(() => {
+    localStorage.setItem('currentView', currentView);
+  }, [currentView]);
+
+  // Dispara a contagem do splash apenas no primeiro login da sessao
   useEffect(() => {
     if (autenticado) {
-      setShowSplash(true);
-      // Mantém a tela azul por 2 segundos (2000ms) antes de liberar o painel
-      const timer = setTimeout(() => {
-        setShowSplash(false);
-      }, 2000);
+      const splashMostrado = sessionStorage.getItem('splashMostrado');
       
-      return () => clearTimeout(timer);
+      // se ja mostrou o splash nessa aba, nao mostra de novo no f5 da reserva
+      if (!splashMostrado) {
+        setShowSplash(true);
+        sessionStorage.setItem('splashMostrado', 'true');
+        
+        // Mantém a tela azul por 2 segundos (2000ms) antes de liberar o painel
+        const timer = setTimeout(() => {
+          setShowSplash(false);
+        }, 2000);
+        
+        return () => clearTimeout(timer);
+      }
     }
   }, [autenticado]);
 
@@ -34,9 +54,9 @@ function App() {
       case 'Calendário':
         return <CalendarioView />;
       case 'Reservas':
-        return <h4>Tela de Gestão de Reservas (Em construção)</h4>;
+        return <ReservasView />;
       case 'Espaços':
-        return <h4>Tela de Gestão de Espaços (Em construção)</h4>;
+        return <EspacosView />;
       case 'Usuários':
         return <UsuariosView />;
       default:
@@ -48,11 +68,10 @@ function App() {
     return <Login setAutenticado={setAutenticado} />;
   }
 
- //Tela de Boas-vindas
+  //Tela de Boas-vindas
   if (showSplash) {
     return (
       <div 
-        
         className="vh-100 vw-100 d-flex flex-column align-items-center justify-content-center text-white position-relative overflow-hidden" 
         style={{ backgroundColor: 'var(--unifor-blue, #005baa)', transition: 'opacity 0.5s ease-in-out' }}
       >
@@ -84,7 +103,7 @@ function App() {
   }
 
 return (
-    // mudança das cores Colocamos o bg-body-tertiary e text-body no container mestre
+    
     <div className="d-flex vh-100 vw-100 bg-body-tertiary text-body" style={{ overflow: "hidden" }}>
       
       <Sidebar 
@@ -101,6 +120,5 @@ return (
     </div>
   );
 }
-
 
 export default App;

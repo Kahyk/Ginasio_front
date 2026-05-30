@@ -1,25 +1,53 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { BiLock } from 'react-icons/bi';
 import TabelaHorarios from '../components/TabelaHorarios';
 import ModalReserva from '../components/ModalReserva';
 import ModalInterditar from '../components/ModalInterditar';
+import api from '../services/api';
 
 const CalendarioView = () => {
-  const hoje = new Date().toISOString().split('T')[0];
+  // === CORREÇÃO DO FUSO HORÁRIO ===
+  // Trava a data exata local, impedindo que pule para o dia seguinte de noite
+  const dataAtual = new Date();
+  const ano = dataAtual.getFullYear();
+  const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+  const dia = String(dataAtual.getDate()).padStart(2, '0');
+  const hojeLocal = `${ano}-${mes}-${dia}`;
   
-  const [dataSelecionada, setDataSelecionada] = useState(hoje);
+  const [dataSelecionada, setDataSelecionada] = useState(hojeLocal);
   const [complexoAtual, setComplexoAtual] = useState('Ginásio');
   
   const [showModalReserva, setShowModalReserva] = useState(false);
   const [slotSelecionado, setSlotSelecionado] = useState(null);
   const [showModalInterditar, setShowModalInterditar] = useState(false);
 
+  const [reservasDoDia, setReservasDoDia] = useState([]);
+
   const locais = useMemo(() => {
     if (complexoAtual === 'Piscina') return ['Raia 1', 'Raia 2', 'Raia 3', 'Área de Lazer'];
     if (complexoAtual === 'Complexo de Tênis') return ['Quadra Saibro', 'Quadra Rápida 1', 'Quadra Rápida 2'];
     return ['Quadra Poliesportiva 1', 'Quadra Poliesportiva 2', 'Sala Multifuncional'];
   }, [complexoAtual]);
+
+  useEffect(() => {
+    const buscarReservas = async () => {
+      try {
+        const response = await api.get('/schedulings');
+        
+        const reservasFiltradas = response.data.filter(reserva => {
+          const dataDaReserva = reserva.date.split('T')[0];
+          return dataDaReserva === dataSelecionada;
+        });
+
+        setReservasDoDia(reservasFiltradas);
+      } catch (error) {
+        console.error("Erro ao buscar as reservas no banco:", error);
+      }
+    };
+
+    buscarReservas();
+  }, [dataSelecionada]);
 
   const handleAbrirModalReserva = (slot) => {
     setSlotSelecionado(slot);
@@ -68,8 +96,9 @@ const CalendarioView = () => {
 
       <div className="card-unifor overflow-hidden border">
          <TabelaHorarios 
-            locais={locais}
-            onSlotClick={handleAbrirModalReserva} 
+           locais={locais}
+           reservas={reservasDoDia} 
+           onSlotClick={handleAbrirModalReserva} 
          />
       </div>
 
