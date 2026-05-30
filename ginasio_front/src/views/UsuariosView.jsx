@@ -21,10 +21,10 @@ const UsuariosView = () => {
         setLoading(true);
         setErro(null);   
 
-        // Dispara as duas requisições ao servidor ao mesmo tempo (Promise.all)
+        // Dispara as duas requisições ao servidor ao mesmo tempo (Promise.all) nas rotas corretas
         const [respostaAssessorias, respostaLocatarios] = await Promise.all([
-          fetch('http://localhost:8080/api/assessorias'),
-          fetch('http://localhost:8080/api/locatarios')
+          fetch('http://localhost:3000/estrangeiros'),
+          fetch('http://localhost:3000/alunos')
         ]);
 
         // Se o servidor devolver um erro (ex: erro 500 ou servidor offline), paramos tudo
