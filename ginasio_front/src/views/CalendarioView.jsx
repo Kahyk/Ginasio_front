@@ -6,9 +6,7 @@ import ModalReserva from '../components/ModalReserva';
 import ModalInterditar from '../components/ModalInterditar';
 import api from '../services/api';
 
-const CalendarioView = () => {
-  // === CORREÇÃO DO FUSO HORÁRIO ===
-  // Trava a data exata local, impedindo que pule para o dia seguinte de noite
+export default function CalendarioView() {
   const dataAtual = new Date();
   const ano = dataAtual.getFullYear();
   const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
@@ -24,7 +22,7 @@ const CalendarioView = () => {
 
   const [reservasDoDia, setReservasDoDia] = useState([]);
 
-  const locais = useMemo(() => {
+  const locales = useMemo(() => {
     if (complexoAtual === 'Piscina') return ['Raia 1', 'Raia 2', 'Raia 3', 'Área de Lazer'];
     if (complexoAtual === 'Complexo de Tênis') return ['Quadra Saibro', 'Quadra Rápida 1', 'Quadra Rápida 2'];
     return ['Quadra Poliesportiva 1', 'Quadra Poliesportiva 2', 'Sala Multifuncional'];
@@ -33,10 +31,14 @@ const CalendarioView = () => {
   useEffect(() => {
     const buscarReservas = async () => {
       try {
-        const response = await api.get('/schedulings');
+        // CORRIGIDO AQUI
+        const token = localStorage.getItem('token');
+        const response = await api.get('/schedulings', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         
         const reservasFiltradas = response.data.filter(reserva => {
-          const dataDaReserva = reserva.date.split('T')[0];
+          const dataDaReserva = new Date(reserva.date).toLocaleDateString('en-CA', { timeZone: 'America/Fortaleza' });
           return dataDaReserva === dataSelecionada;
         });
 
@@ -96,9 +98,10 @@ const CalendarioView = () => {
 
       <div className="card-unifor overflow-hidden border">
          <TabelaHorarios 
-           locais={locais}
+           locais={locales}
            reservas={reservasDoDia} 
            onSlotClick={handleAbrirModalReserva} 
+           dataSelecionada={dataSelecionada}
          />
       </div>
 
@@ -115,10 +118,8 @@ const CalendarioView = () => {
         handleClose={() => setShowModalInterditar(false)}
         dataSelecionada={dataSelecionada}
         complexoAtual={complexoAtual}
-        locais={locais} 
+        locais={locales} 
       />
     </div>
   );
-};
-
-export default CalendarioView;
+}

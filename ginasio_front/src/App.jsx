@@ -7,14 +7,13 @@ import Login from './views/Login';
 import ReservasView from './views/ReservasView';
 import EspacosView from './views/EspacosView';
 
-
 function App() {
   // inicia a tela pegando o que tava salvo pro f5 nao resetar pro dashboard
   const [currentView, setCurrentView] = useState(() => {
     return localStorage.getItem('currentView') || 'Dashboard';
   });
 
-  // verifica se ja tem token salvo no navegador pra não deslogar quando der f5
+  // MÁGICA AQUI: Mudamos para localStorage para bater exatamente com o seu Login.jsx!
   const [autenticado, setAutenticado] = useState(() => {
     return !!localStorage.getItem('token');
   });

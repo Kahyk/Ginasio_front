@@ -1,42 +1,17 @@
 import { Table } from 'react-bootstrap';
-import { BiLockAlt } from 'react-icons/bi';
+import { BiLockAlt, BiTime } from 'react-icons/bi';
 
-const TabelaHorarios = ({ locais, reservas = [], onSlotClick }) => {
+export default function TabelaHorarios({ locais, reservas = [], onSlotClick, dataSelecionada }) {
   const horarios = ['07:00', '08:30', '10:00', '11:30', '14:00', '15:30', '17:00', '18:30', '20:00'];
-
-  // Dicionário "salva-vidas" para a tabela saber quem é quem no banco
-  const mapLocaisIds = {
-    'Quadra Poliesportiva 1': 'uuid-quadra-001',
-    'Quadra Poliesportiva 2': 'uuid-quadra-002',
-    'Sala Multifuncional': 'uuid-sala-001',
-    'Raia 1': 'uuid-raia-001',
-    'Raia 2': 'uuid-raia-002',
-    'Raia 3': 'uuid-raia-003',
-    'Área de Lazer': 'uuid-lazer-001',
-    'Quadra Saibro': 'uuid-saibro-001',
-    'Quadra Rápida 1': 'uuid-rapida-001',
-    'Quadra Rápida 2': 'uuid-rapida-002',
-  };
 
   const verificarOcupacao = (horario, local) => {
     if (!reservas || reservas.length === 0) return null;
 
     return reservas.find(reserva => {
-      // 1. Pega o horário da reserva corrigindo o fuso para evitar que 10:00 vire 13:00 na tela
       const dataObj = new Date(reserva.date);
-      const horaReserva = dataObj.toLocaleTimeString('pt-BR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone: 'America/Fortaleza' 
-      });
-
-      // 2. Compara se o horário bate e se o ID ou Nome do lugar bate
-      const placeIdDestaColuna = mapLocaisIds[local];
-      
+      const horaReserva = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Fortaleza' });
       const bateuHorario = horaReserva === horario;
-      const bateuLocal = reserva.placeId === placeIdDestaColuna || reserva.place?.name === local;
-
-      // Se a reserva não estiver cancelada, consideramos o bloco ocupado
+      const bateuLocal = reserva.place?.name === local;
       const statusValido = reserva.status !== 'CANCELLED';
 
       return bateuHorario && bateuLocal && statusValido;
@@ -48,9 +23,7 @@ const TabelaHorarios = ({ locais, reservas = [], onSlotClick }) => {
       <thead className="bg-body-secondary border-bottom">
         <tr>
           <th className="py-3 text-muted fw-semibold border-end" style={{ width: '120px' }}>Horário</th>
-          {locais.map(local => (
-            <th key={local} className="py-3 text-body fw-semibold">{local}</th>
-          ))}
+          {locais.map(local => <th key={local} className="py-3 text-body fw-semibold">{local}</th>)}
         </tr>
       </thead>
       <tbody>
@@ -59,26 +32,27 @@ const TabelaHorarios = ({ locais, reservas = [], onSlotClick }) => {
             <td className="fw-bold text-muted border-end bg-body-secondary">{horario}</td>
             
             {locais.map(local => {
+              const isInterditadoLocal = sessionStorage.getItem(`interdito_${dataSelecionada}_${local}`) === 'true';
               const reservaOcupando = verificarOcupacao(horario, local);
 
               return (
                 <td key={local} className="p-2 bg-body-tertiary">
-                  {reservaOcupando ? (
-                    /* BLOCO OCUPADO */
-                    <div 
-                      className="d-flex flex-column justify-content-center align-items-center h-100 rounded border border-danger bg-danger bg-opacity-10 shadow-sm" 
-                      style={{ cursor: 'not-allowed', minHeight: '50px' }}
-                      title={`Reservado - Status: ${reservaOcupando.status}`}
-                    >
-                      <span className="text-danger small fw-bold"><BiLockAlt className="me-1 mb-1"/>Ocupado</span>
+                  {isInterditadoLocal ? (
+                    <div className="d-flex flex-column justify-content-center align-items-center h-100 rounded border border-secondary bg-secondary bg-opacity-25 shadow-sm" style={{ cursor: 'not-allowed', minHeight: '50px' }}>
+                      <span className="text-secondary small fw-bold">🚧 Fechado</span>
                     </div>
+                  ) : reservaOcupando ? (
+                    reservaOcupando.status === 'PENDING' ? (
+                      <div className="d-flex flex-column justify-content-center align-items-center h-100 rounded border border-warning bg-warning bg-opacity-10 shadow-sm" style={{ cursor: 'not-allowed', minHeight: '50px' }}>
+                        <span className="text-warning small fw-bold"><BiTime className="me-1 mb-1"/>Pendente</span>
+                      </div>
+                    ) : (
+                      <div className="d-flex flex-column justify-content-center align-items-center h-100 rounded border border-danger bg-danger bg-opacity-10 shadow-sm" style={{ cursor: 'not-allowed', minHeight: '50px' }}>
+                        <span className="text-danger small fw-bold"><BiLockAlt className="me-1 mb-1"/>Ocupado</span>
+                      </div>
+                    )
                   ) : (
-                    /* BLOCO LIVRE */
-                    <div 
-                      onClick={() => onSlotClick({ horario, local })}
-                      className="d-flex flex-column justify-content-center align-items-center h-100 rounded border border-secondary-subtle bg-body shadow-sm transition-all" 
-                      style={{ cursor: 'pointer', minHeight: '50px' }}
-                    >
+                    <div onClick={() => onSlotClick({ horario, local })} className="d-flex flex-column justify-content-center align-items-center h-100 rounded border border-secondary-subtle bg-body shadow-sm transition-all" style={{ cursor: 'pointer', minHeight: '50px' }}>
                       <span className="text-success small fw-semibold">+ Livre</span>
                     </div>
                   )}
@@ -90,6 +64,4 @@ const TabelaHorarios = ({ locais, reservas = [], onSlotClick }) => {
       </tbody>
     </Table>
   );
-};
-
-export default TabelaHorarios;
+}

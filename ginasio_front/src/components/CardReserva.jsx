@@ -1,8 +1,7 @@
-CardReserva.jsx
 import { Button, Badge } from 'react-bootstrap';
 import { BiCheckCircle, BiTime, BiTrash } from 'react-icons/bi';
 
-const CardReserva = ({ reserva, onConfirmar, onDeletar }) => {
+export default function CardReserva({ reserva, onConfirmar, onDeletar }) {
   const isPendente = reserva.status === 'Pendente';
 
   return (
@@ -60,7 +59,6 @@ const CardReserva = ({ reserva, onConfirmar, onDeletar }) => {
         </div>
       </div>
 
-      {/* Áreas de Informação Extra */}
       {!isPendente && reserva.pagamento && (
         <div className="bg-success bg-opacity-10 border border-success border-opacity-25 rounded p-2 mb-3 text-success small">
           <strong>Pagamento:</strong> {reserva.pagamento}
@@ -80,6 +78,4 @@ const CardReserva = ({ reserva, onConfirmar, onDeletar }) => {
       )}
     </div>
   );
-};
-
-export default CardReserva;
+}

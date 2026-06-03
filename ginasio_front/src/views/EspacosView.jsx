@@ -9,22 +9,33 @@ const EspacosView = () => {
   const [categoriaFiltro, setCategoriaFiltro] = useState('Todas as Categorias');
 
   useEffect(() => {
-    // Busca os espaços na rota do Back-end
     const carregarEspacos = async () => {
       try {
-        const token = localStorage.getItem('token'); // Pegando o token de auth
+        // CORRIGIDO AQUI
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+          window.location.href = '/login'; 
+          return;
+        }
+
         const response = await fetch('http://localhost:3000/places', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+
+        if (response.status === 401) {
+          alert("Sua sessão expirou. Vamos te redirecionar para o login.");
+          localStorage.removeItem('token'); // CORRIGIDO AQUI TAMBÉM
+          window.location.href = '/login';
+          return;
+        }
         
         if (response.ok) {
           const data = await response.json();
-          // Adaptando os dados do banco (que só tem name e capacity) para o layout do Front
           const espacosAdaptados = data.map(p => ({
             id: p.id,
             nome: p.name,
             capacidade: p.capacity,
-            // Como o schema.prisma ainda não tem esses campos, usamos valores padrão
             categoria: 'Quadra Poliesportiva', 
             coberto: true,
             reservasConfirmadas: p.schedulings ? p.schedulings.length : 0,
@@ -69,7 +80,6 @@ const EspacosView = () => {
         <p className="text-muted small mb-0">Visualize todos os espaços disponíveis no complexo esportivo</p>
       </div>
 
-      {/* Cards de Resumo */}
       <Row className="g-3 mb-4">
         <Col md={3}>
           <div className="card-unifor p-3 text-center border">
@@ -97,7 +107,6 @@ const EspacosView = () => {
         </Col>
       </Row>
 
-      {/* Barra de Pesquisa */}
       <div className="d-flex gap-3 mb-4 bg-body p-3 rounded card-unifor border">
         <InputGroup className="flex-grow-1 border rounded bg-body-secondary">
           <InputGroup.Text className="bg-transparent border-0 text-muted"><BiSearch size={20} /></InputGroup.Text>

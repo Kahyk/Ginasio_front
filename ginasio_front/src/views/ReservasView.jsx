@@ -3,7 +3,7 @@ import { Form, InputGroup } from 'react-bootstrap';
 import { BiSearch } from 'react-icons/bi';
 import CardReserva from '../components/CardReserva';
 
-const ReservasView = () => {
+export default function ReservasView() {
   const [reservas, setReservas] = useState([]);
   const [busca, setBusca] = useState('');
   const [statusFiltro, setStatusFiltro] = useState('Todos os Status');
@@ -16,11 +16,10 @@ const ReservasView = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        // Adaptando para o CardReserva
         const adaptadas = data.map(r => ({
           id: r.id,
           espaco: r.place?.name || 'Espaço não informado',
-          status: r.status === 'PENDING' ? 'Pendente' : r.status === 'COMPLETED' ? 'Confirmado' : 'Cancelado',
+          status: r.status === 'PENDING' ? 'Pendente' : (r.status === 'COMPLETED' || r.status === 'CONFIRMED') ? 'Confirmado' : 'Cancelado',
           data: new Date(r.date).toLocaleDateString('pt-BR'),
           horario: new Date(r.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
           locatario: r.user?.name || 'Locatário Avulso',
@@ -40,7 +39,6 @@ const ReservasView = () => {
   const handleConfirmar = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      // OBS: Você precisa criar a rota PUT /schedulings/:id/status no seu backend!
       const response = await fetch(`http://localhost:3000/schedulings/${id}/status`, {
         method: 'PUT',
         headers: { 
@@ -50,7 +48,7 @@ const ReservasView = () => {
         body: JSON.stringify({ status: 'COMPLETED' })
       });
       if (response.ok) {
-        carregarReservas(); // recarrega a lista
+        carregarReservas(); 
       }
     } catch (error) {
       console.error("Erro ao confirmar", error);
@@ -60,18 +58,24 @@ const ReservasView = () => {
   const handleDeletar = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      // Bate na sua rota de delete de funcionario
       const response = await fetch(`http://localhost:3000/schedulings/cancel/funcionario/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
-        carregarReservas(); // recarrega a lista removendo o excluido
+        carregarReservas(); 
       }
     } catch (error) {
       console.error("Erro ao deletar", error);
     }
   };
+
+  // A MÁGICA ACONTECE AQUI: Criamos a lista filtrada antes de renderizar
+  const reservasFiltradas = reservas.filter(reserva => {
+    const bateBusca = reserva.espaco.toLowerCase().includes(busca.toLowerCase()) || reserva.locatario.toLowerCase().includes(busca.toLowerCase());
+    const bateStatus = statusFiltro === 'Todos os Status' || reserva.status === statusFiltro;
+    return bateBusca && bateStatus;
+  });
 
   return (
     <div className="h-100 d-flex flex-column">
@@ -92,23 +96,23 @@ const ReservasView = () => {
           <option value="Todos os Status">Todos os Status</option>
           <option value="Confirmado">Confirmado</option>
           <option value="Pendente">Pendente</option>
+          <option value="Cancelado">Cancelado</option>
         </Form.Select>
       </div>
 
       <div className="flex-grow-1 overflow-auto pe-2">
-        <h6 className="fw-bold mb-3 text-body">Reservas ({reservas.length})</h6>
-        {reservas.length === 0 ? (
+        <h6 className="fw-bold mb-3 text-body">Reservas ({reservasFiltradas.length})</h6>
+        {reservasFiltradas.length === 0 ? (
            <div className="bg-body-secondary rounded p-5 text-center border" style={{ borderStyle: 'dashed !important' }}>
-              <p className="text-muted mb-0">Nenhuma reserva encontrada. Aguardando conexão com o servidor...</p>
+              <p className="text-muted mb-0">Nenhuma reserva encontrada para este filtro.</p>
            </div>
         ) : (
-          reservas.map(reserva => (
+          /* Renderiza APENAS a lista filtrada, e não a lista inteira */
+          reservasFiltradas.map(reserva => (
             <CardReserva key={reserva.id} reserva={reserva} onConfirmar={handleConfirmar} onDeletar={handleDeletar} />
           ))
         )}
       </div>
     </div>
   );
-};
-
-export default ReservasView;
+}
