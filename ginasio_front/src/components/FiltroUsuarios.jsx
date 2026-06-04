@@ -22,8 +22,7 @@ const FiltroUsuarios = ({ busca, setBusca, tipoFiltro, setTipoFiltro }) => {
         onChange={(e) => setTipoFiltro(e.target.value)}
       >
         <option>Todos os Tipos</option>
-        <option>Assessorias</option>
-        <option>Locatários</option>
+        <option>Funcionários</option>
       </Form.Select>
     </div>
   );

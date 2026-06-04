@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Form, InputGroup } from 'react-bootstrap';
 import { BiSearch } from 'react-icons/bi';
 import CardReserva from '../components/CardReserva';
+import api from '../services/api';
 
 const ReservasView = () => {
   const [reservas, setReservas] = useState([]);
@@ -10,24 +11,30 @@ const ReservasView = () => {
 
   const carregarReservas = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/schedulings', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        // Adaptando para o CardReserva
-        const adaptadas = data.map(r => ({
-          id: r.id,
-          espaco: r.place?.name || 'Espaço não informado',
-          status: r.status === 'PENDING' ? 'Pendente' : r.status === 'COMPLETED' ? 'Confirmado' : 'Cancelado',
-          data: new Date(r.date).toLocaleDateString('pt-BR'),
-          horario: new Date(r.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-          locatario: r.user?.name || 'Locatário Avulso',
-          contato: r.user?.phone || 'Sem contato'
-        }));
-        setReservas(adaptadas);
+      let response;
+
+      try {
+        response = await api.get('/schedulings');
+      } catch (error) {
+        if (error.response?.status === 401) {
+          response = await api.get('/schedulings/me');
+        } else {
+          throw error;
+        }
       }
+
+      const adaptadas = response.data.map((r) => ({
+        id: r.id,
+        espaco: r.place?.name || 'Espaço não informado',
+        status: r.status === 'PENDING' ? 'Pendente' : r.status === 'COMPLETED' ? 'Confirmado' : 'Cancelado',
+        data: new Date(r.date).toLocaleDateString('pt-BR'),
+        horario: new Date(r.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        locatario: r.reservationName || r.user?.name || 'Locatário Avulso',
+        contato: r.reservationEmail || r.user?.phone || 'Sem contato',
+        tag: r.reservationTypeUser === 'FUNCIONARIO' ? 'Funcionário' : 'Reserva'
+      }));
+
+      setReservas(adaptadas);
     } catch (error) {
       console.error("Erro ao carregar reservas", error);
     }
@@ -39,17 +46,9 @@ const ReservasView = () => {
 
   const handleConfirmar = async (id) => {
     try {
-      const token = localStorage.getItem('token');
       // OBS: Você precisa criar a rota PUT /schedulings/:id/status no seu backend!
-      const response = await fetch(`http://localhost:3000/schedulings/${id}/status`, {
-        method: 'PUT',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: 'COMPLETED' })
-      });
-      if (response.ok) {
+      const response = await api.put(`/schedulings/${id}/status`, { status: 'COMPLETED' });
+      if (response.status === 200) {
         carregarReservas(); // recarrega a lista
       }
     } catch (error) {
@@ -59,13 +58,9 @@ const ReservasView = () => {
 
   const handleDeletar = async (id) => {
     try {
-      const token = localStorage.getItem('token');
       // Bate na sua rota de delete de funcionario
-      const response = await fetch(`http://localhost:3000/schedulings/cancel/funcionario/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
+      const response = await api.delete(`/schedulings/cancel/funcionario/${id}`);
+      if (response.status === 200) {
         carregarReservas(); // recarrega a lista removendo o excluido
       }
     } catch (error) {

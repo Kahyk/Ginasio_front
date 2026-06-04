@@ -3,7 +3,7 @@ import { Container, Form, Button, InputGroup, Alert } from 'react-bootstrap';
 import { BiEnvelope, BiLockAlt, BiLogIn } from 'react-icons/bi';
 import api from '../services/api'; // Importamos a nossa configuração da API
 
-const Login = ({ setAutenticado }) => {
+const Login = ({ setAutenticado, onOpenCadastroFuncionario }) => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
@@ -109,6 +109,17 @@ const Login = ({ setAutenticado }) => {
             )}
           </Button>
         </Form>
+
+        <div className="text-center mt-3">
+          <button
+            type="button"
+            className="btn btn-link p-0 text-decoration-none fw-semibold"
+            style={{ color: 'var(--unifor-blue)' }}
+            onClick={onOpenCadastroFuncionario}
+          >
+            Cadastrar funcionário
+          </button>
+        </div>
         
         {/* Rodapé */}
         <div className="text-center mt-4 pt-3 border-top border-secondary-subtle">

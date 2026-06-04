@@ -1,4 +1,3 @@
-CardReserva.jsx
 import { Button, Badge } from 'react-bootstrap';
 import { BiCheckCircle, BiTime, BiTrash } from 'react-icons/bi';
 

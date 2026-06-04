@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import { BiCheckCircle } from 'react-icons/bi';
+import api from '../services/api';
 
 const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotSelecionado }) => {
   const [validated, setValidated] = useState(false);
@@ -10,16 +11,22 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
   const [placeId, setPlaceId] = useState('');
   const [data, setData] = useState('');
   const [horarioInicio, setHorarioInicio] = useState('');
+  const [reservationPerson, setReservationPerson] = useState({
+    name: '',
+    email: '',
+    cpf: '',
+    typeUser: 'ALUNO',
+    matricula: ''
+  });
 
   // Busca os locais reais do banco para popular o <select> com os IDs corretos
   useEffect(() => {
     if (show) {
       const fetchPlaces = async () => {
         try {
-          const token = localStorage.getItem('token');
-          const res = await fetch('http://localhost:3000/places', { headers: { 'Authorization': `Bearer ${token}` } });
-          if (res.ok) {
-            const lugares = await res.json();
+          const res = await api.get('/places');
+          if (res.status === 200) {
+            const lugares = res.data;
             setEspacosBanco(lugares);
             
             // Se veio do clique no calendário, tenta achar o ID do lugar pelo nome
@@ -34,6 +41,13 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
       
       setData(dataSelecionada || '');
       setHorarioInicio(slotSelecionado?.horario || '');
+      setReservationPerson({
+        name: '',
+        email: '',
+        cpf: '',
+        typeUser: 'ALUNO',
+        matricula: ''
+      });
     }
   }, [show, slotSelecionado, dataSelecionada]);
 
@@ -49,24 +63,21 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
     }
 
     try {
-      const token = localStorage.getItem('token');
       // Junta a data e o horário para o formato ISO que o Prisma exige
       const dataFormatada = new Date(`${data}T${horarioInicio}`).toISOString();
 
-      const response = await fetch('http://localhost:3000/schedulings', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          placeId: placeId,
-          date: dataFormatada,
-          status: 'PENDING'
-        })
+      const response = await api.post('/schedulings', {
+        placeId: placeId,
+        date: dataFormatada,
+        status: 'PENDING',
+        reservationName: reservationPerson.name,
+        reservationEmail: reservationPerson.email,
+        reservationCpf: reservationPerson.cpf,
+        reservationTypeUser: reservationPerson.typeUser,
+        reservationMatricula: reservationPerson.typeUser === 'ALUNO' ? reservationPerson.matricula : null
       });
 
-      if (response.ok) {
+      if (response.status === 201) {
         setSucesso(true);
       }
     } catch (error) {
@@ -133,6 +144,86 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
                   <Form.Group>
                     <Form.Label className="fw-semibold small text-body mb-1">Horário Início *</Form.Label>
                     <Form.Control type="time" required className="bg-body-tertiary text-muted" value={horarioInicio} onChange={(e) => setHorarioInicio(e.target.value)}/>
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <h6 className="fw-bold mb-3 text-body">Dados da Pessoa da Reserva</h6>
+              <Row className="g-3">
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label className="fw-semibold small text-body mb-1">Nome *</Form.Label>
+                    <Form.Control
+                      type="text"
+                      required
+                      placeholder="Nome completo"
+                      className="bg-body-tertiary text-muted"
+                      value={reservationPerson.name}
+                      onChange={(e) => setReservationPerson((prev) => ({ ...prev, name: e.target.value }))}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label className="fw-semibold small text-body mb-1">Email *</Form.Label>
+                    <Form.Control
+                      type="email"
+                      required
+                      placeholder="email@exemplo.com"
+                      className="bg-body-tertiary text-muted"
+                      value={reservationPerson.email}
+                      onChange={(e) => setReservationPerson((prev) => ({ ...prev, email: e.target.value }))}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={4}>
+                  <Form.Group>
+                    <Form.Label className="fw-semibold small text-body mb-1">CPF *</Form.Label>
+                    <Form.Control
+                      type="text"
+                      required
+                      placeholder="000.000.000-00"
+                      className="bg-body-tertiary text-muted"
+                      value={reservationPerson.cpf}
+                      onChange={(e) => setReservationPerson((prev) => ({ ...prev, cpf: e.target.value }))}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={4}>
+                  <Form.Group>
+                    <Form.Label className="fw-semibold small text-body mb-1">Tipo *</Form.Label>
+                    <Form.Select
+                      required
+                      className="bg-body-tertiary text-muted"
+                      value={reservationPerson.typeUser}
+                      onChange={(e) => setReservationPerson((prev) => ({
+                        ...prev,
+                        typeUser: e.target.value,
+                        matricula: e.target.value === 'ALUNO' ? prev.matricula : ''
+                      }))}
+                    >
+                      <option value="ALUNO">Aluno</option>
+                      <option value="FUNCIONARIO">Funcionário</option>
+                      <option value="ESTRANGEIRO">Estrangeiro</option>
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+
+                <Col md={4}>
+                  <Form.Group>
+                    <Form.Label className="fw-semibold small text-body mb-1">Matrícula {reservationPerson.typeUser === 'ALUNO' ? '*' : '(opcional)'}</Form.Label>
+                    <Form.Control
+                      type="text"
+                      required={reservationPerson.typeUser === 'ALUNO'}
+                      disabled={reservationPerson.typeUser !== 'ALUNO'}
+                      placeholder="Matrícula do aluno"
+                      className="bg-body-tertiary text-muted"
+                      value={reservationPerson.matricula}
+                      onChange={(e) => setReservationPerson((prev) => ({ ...prev, matricula: e.target.value }))}
+                    />
                   </Form.Group>
                 </Col>
               </Row>

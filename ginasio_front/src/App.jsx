@@ -4,6 +4,7 @@ import DashboardView from './views/DashboardView';
 import CalendarioView from './views/CalendarioView';
 import UsuariosView from './views/UsuariosView';
 import Login from './views/Login';
+import CadastroFuncionario from './views/CadastroFuncionario';
 import ReservasView from './views/ReservasView';
 import EspacosView from './views/EspacosView';
 
@@ -14,12 +15,11 @@ function App() {
     return localStorage.getItem('currentView') || 'Dashboard';
   });
 
-  // verifica se ja tem token salvo no navegador pra não deslogar quando der f5
-  const [autenticado, setAutenticado] = useState(() => {
-    return !!localStorage.getItem('token');
-  });
+  // a aplicação sempre abre pela tela de login; o token só vale depois do login explícito
+  const [autenticado, setAutenticado] = useState(false);
 
   const [showSplash, setShowSplash] = useState(false);
+  const [publicView, setPublicView] = useState('login');
 
   // salva a tela atual toda vez que ela mudar pro f5 nao resetar ela
   useEffect(() => {
@@ -65,7 +65,20 @@ function App() {
   };
 
   if (!autenticado) {
-    return <Login setAutenticado={setAutenticado} />;
+    if (publicView === 'cadastro-funcionario') {
+      return (
+        <CadastroFuncionario
+          onBackToLogin={() => setPublicView('login')}
+        />
+      );
+    }
+
+    return (
+      <Login
+        setAutenticado={setAutenticado}
+        onOpenCadastroFuncionario={() => setPublicView('cadastro-funcionario')}
+      />
+    );
   }
 
   //Tela de Boas-vindas
