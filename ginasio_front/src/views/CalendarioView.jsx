@@ -7,8 +7,6 @@ import ModalInterditar from '../components/ModalInterditar';
 import api from '../services/api';
 
 const CalendarioView = () => {
-  // === CORREÇÃO DO FUSO HORÁRIO ===
-  // Trava a data exata local, impedindo que pule para o dia seguinte de noite
   const dataAtual = new Date();
   const ano = dataAtual.getFullYear();
   const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
