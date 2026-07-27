@@ -10,33 +10,27 @@ import EspacosView from './views/EspacosView';
 
 
 function App() {
-  // inicia a tela pegando o que tava salvo pro f5 nao resetar pro dashboard
+  
   const [currentView, setCurrentView] = useState(() => {
     return localStorage.getItem('currentView') || 'Dashboard';
   });
-
-  // a aplicação sempre abre pela tela de login; o token só vale depois do login explícito
+  
   const [autenticado, setAutenticado] = useState(false);
-
   const [showSplash, setShowSplash] = useState(false);
   const [publicView, setPublicView] = useState('login');
 
-  // salva a tela atual toda vez que ela mudar pro f5 nao resetar ela
   useEffect(() => {
     localStorage.setItem('currentView', currentView);
   }, [currentView]);
 
-  // Dispara a contagem do splash apenas no primeiro login da sessao
   useEffect(() => {
     if (autenticado) {
       const splashMostrado = sessionStorage.getItem('splashMostrado');
       
-      // se ja mostrou o splash nessa aba, nao mostra de novo no f5 da reserva
       if (!splashMostrado) {
         setShowSplash(true);
         sessionStorage.setItem('splashMostrado', 'true');
         
-        // Mantém a tela azul por 2 segundos (2000ms) antes de liberar o painel
         const timer = setTimeout(() => {
           setShowSplash(false);
         }, 2000);
@@ -104,7 +98,7 @@ function App() {
           }}
         />
 
-        {/* Textos e Spinner (precisam de z-index para ficar na frente da logo) */}
+        {/* Textos e Spinner */}
         <div className="text-center" style={{ zIndex: 1 }}>
           <h1 className="fw-bolder display-1 mb-0" style={{ letterSpacing: '-2px' }}>UNIFOR</h1>
           <p className="fs-5 opacity-75 mb-4">Gestão Complexo Esportivo</p>
