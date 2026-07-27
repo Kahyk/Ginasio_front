@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Container, Form, Button, InputGroup, Alert } from 'react-bootstrap';
 import { BiEnvelope, BiLockAlt, BiLogIn } from 'react-icons/bi';
-import api from '../services/api'; // Importamos a nossa configuração da API
+import api from '../services/api'; 
 
 const Login = ({ setAutenticado, onOpenCadastroFuncionario }) => {
   const [email, setEmail] = useState('');
@@ -15,18 +15,14 @@ const Login = ({ setAutenticado, onOpenCadastroFuncionario }) => {
     setErro('');
 
     try {
-      // Faz a requisição POST real para a rota /auth/login do back-end
+      
       const response = await api.post('/auth/login', {
         email: email,
         password: senha
       });
-
-      // Se o back-end responder com sucesso, ele nos devolve o Token JWT
       if (response.data && response.data.token) {
-        // Guardamos o token com segurança no navegador para usar nas próximas telas
-        localStorage.setItem('token', response.data.token);
         
-        // Destranca o sistema!
+        localStorage.setItem('token', response.data.token);
         setAutenticado(true);
       } else {
         setErro('Falha na autenticação. Tente novamente.');
