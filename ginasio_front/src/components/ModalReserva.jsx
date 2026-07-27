@@ -4,14 +4,13 @@ import { BiCheckCircle } from 'react-icons/bi';
 import api from '../services/api';
 
 const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotSelecionado }) => {
-  const [validated, setValidated] = useState(false);
-  const [sucesso, setSucesso] = useState(false);
-
-  const [espacosBanco, setEspacosBanco] = useState([]); // Espaços que vêm do banco
-  const [placeId, setPlaceId] = useState('');
-  const [data, setData] = useState('');
-  const [horarioInicio, setHorarioInicio] = useState('');
-  const [reservationPerson, setReservationPerson] = useState({
+const [validated, setValidated] = useState(false);
+const [sucesso, setSucesso] = useState(false);
+const [espacosBanco, setEspacosBanco] = useState([]); 
+const [placeId, setPlaceId] = useState('');
+const [data, setData] = useState('');
+const [horarioInicio, setHorarioInicio] = useState('');
+const [reservationPerson, setReservationPerson] = useState({
     name: '',
     email: '',
     cpf: '',
@@ -19,7 +18,7 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
     matricula: ''
   });
 
-  // Busca os locais reais do banco para popular o <select> com os IDs corretos
+  
   useEffect(() => {
     if (show) {
       const fetchPlaces = async () => {
@@ -29,7 +28,7 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
             const lugares = res.data;
             setEspacosBanco(lugares);
             
-            // Se veio do clique no calendário, tenta achar o ID do lugar pelo nome
+            
             if (slotSelecionado) {
                const lugarEncontrado = lugares.find(l => l.name === slotSelecionado.local);
                if(lugarEncontrado) setPlaceId(lugarEncontrado.id);
@@ -63,9 +62,7 @@ const ModalReserva = ({ show, handleClose, dataSelecionada, complexoAtual, slotS
     }
 
     try {
-      // Junta a data e o horário para o formato ISO que o Prisma exige
       const dataFormatada = new Date(`${data}T${horarioInicio}`).toISOString();
-
       const response = await api.post('/schedulings', {
         placeId: placeId,
         date: dataFormatada,
