@@ -13,7 +13,6 @@ const EspacosView = () => {
   const [loadingCreate, setLoadingCreate] = useState(false);
 
   useEffect(() => {
-    // Busca os espaços na rota do Back-end
     const carregarEspacos = async () => {
       try {
         const response = await api.get('/places');
