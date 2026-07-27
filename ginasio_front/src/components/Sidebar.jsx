@@ -4,10 +4,10 @@ import { BiHomeAlt, BiCalendar, BiNotepad, BiMapAlt, BiGroup, BiErrorCircle, BiC
 import ModalSenha from "./ModalSenha";
 
 const Sidebar = ({ currentView, setCurrentView,setAutenticado}) => {
-  const [temaEscuro, setTemaEscuro] = useState(false);
-  const [showModalSenha, setShowModalSenha] = useState(false);
+const [temaEscuro, setTemaEscuro] = useState(false);
+const [showModalSenha, setShowModalSenha] = useState(false);
 
-  // função que inverte o tema e aplica direto no HTML da página
+  
   const alternarTema = () => {
     const novoTema = !temaEscuro;
     setTemaEscuro(novoTema);
