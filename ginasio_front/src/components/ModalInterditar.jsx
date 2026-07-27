@@ -7,8 +7,7 @@ const ModalInterditar = ({ show, handleClose, dataSelecionada, complexoAtual, lo
   const [espacosSelecionados, setEspacosSelecionados] = useState([]);
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState(false);
-  //OBS: ainda sem o back, n tem como mostrar funcionando direito...
-  // aqui limpa o formulario toda vez que for aberto
+ 
   useEffect(() => {
     if (show) {
       setMotivo('');
