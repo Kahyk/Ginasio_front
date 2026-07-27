@@ -4,10 +4,10 @@ import { BiCalendarEdit, BiInfoCircle, BiCalendarAlt, BiTime, BiCheckCircle } fr
 import api from '../services/api';
 
 const DashboardView = ({ setCurrentView }) => {
-  // busca as próximas reservas da base de dados
+  
   const [reservasProximas, setReservasProximas] = useState([]);
 
-  // dicionário para converter id do banco para o nome amigável no ecrã
+  
   const mapIdsParaNomes = {
     'uuid-quadra-001': 'Quadra Poliesportiva 1',
     'uuid-quadra-002': 'Quadra Poliesportiva 2',
@@ -21,7 +21,7 @@ const DashboardView = ({ setCurrentView }) => {
     'uuid-rapida-002': 'Quadra Rápida 2',
   };
 
-  // lista de alguns feriados de 2026 para exemplo
+  
   const todosFeriados = [
     { data: '2026-06-04', motivo: 'Corpus Christi' },
     { data: '2026-08-15', motivo: 'Nossa Senhora da Assunção' },
@@ -33,7 +33,7 @@ const DashboardView = ({ setCurrentView }) => {
     { data: '2026-12-25', motivo: 'Natal' }
   ];
 
-  // Pega a data exata local, ignorando o avanço do UTC à noite
+  
   const dataAtual = new Date();
   const ano = dataAtual.getFullYear();
   const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
@@ -44,21 +44,21 @@ const DashboardView = ({ setCurrentView }) => {
     .filter(feriado => feriado.data >= hoje)
     .slice(0, 3); 
 
-  // efeito para buscar as reservas na api assim que abrir a tela
+ 
   useEffect(() => {
     const carregarDashboard = async () => {
       try {
         const resposta = await api.get('/schedulings');
         
-        // filtra agendamentos futuros e ordena por proximidade
+       
         const filtrados = resposta.data
           .filter(reserva => {
             const dataReserva = reserva.date.split('T')[0];
-            // Agora aceitamos CONFIRMED ou PENDING para driblar o padrão do backend
+           
             return dataReserva >= hoje && (reserva.status === 'CONFIRMED' || reserva.status === 'PENDING');
           })
           .sort((a, b) => new Date(a.date) - new Date(b.date))
-          .slice(0, 4); // mostra no máximo os próximos 4 itens
+          .slice(0, 4); 
 
         setReservasProximas(filtrados);
       } catch (erro) {
@@ -73,7 +73,7 @@ const DashboardView = ({ setCurrentView }) => {
     return dataIso.split('-').reverse().join('/');
   };
 
-  // formata a hora direto do iso corrigindo fuso horário
+  
   const formatarHora = (dataIso) => {
     return new Date(dataIso).toLocaleTimeString('pt-BR', {
       hour: '2-digit',
@@ -104,7 +104,7 @@ const DashboardView = ({ setCurrentView }) => {
         {/* card 1: inicios proximos */}
         <Col xs={12} className="mb-4">
           <div className="card-unifor p-4">
-            {/* Título alterado como você pediu! */}
+            {/* Título */}
             <h6 className="fw-bold mb-4 text-body">Inícios Próximos (Próximas Reservas)</h6>
             
             {reservasProximas.length === 0 ? (
