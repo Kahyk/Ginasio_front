@@ -46,10 +46,10 @@ const ReservasView = () => {
 
   const handleConfirmar = async (id) => {
     try {
-      // OBS: Você precisa criar a rota PUT /schedulings/:id/status no seu backend!
+      
       const response = await api.put(`/schedulings/${id}/status`, { status: 'COMPLETED' });
       if (response.status === 200) {
-        carregarReservas(); // recarrega a lista
+        carregarReservas(); 
       }
     } catch (error) {
       console.error("Erro ao confirmar", error);
@@ -58,10 +58,10 @@ const ReservasView = () => {
 
   const handleDeletar = async (id) => {
     try {
-      // Bate na sua rota de delete de funcionario
+      
       const response = await api.delete(`/schedulings/cancel/funcionario/${id}`);
       if (response.status === 200) {
-        carregarReservas(); // recarrega a lista removendo o excluido
+        carregarReservas(); 
       }
     } catch (error) {
       console.error("Erro ao deletar", error);
